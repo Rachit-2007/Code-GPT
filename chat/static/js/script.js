@@ -17,7 +17,7 @@ async function createNewChat() {
     }
 
     const response = await fetch(
-        "http://127.0.0.1:8001/new-chat",
+        "https://code-gpt-a3w3.onrender.com/new-chat",
         {
             method: "POST"
         }
@@ -48,7 +48,7 @@ async function createNewChat() {
 async function loadChats() {
 
     const response = await fetch(
-        "http://127.0.0.1:8001/chats"
+        "https://code-gpt-a3w3.onrender.com/chats"
     );
 
     const chats = await response.json();
@@ -87,7 +87,7 @@ async function openChat(chatId) {
     currentChatId = chatId;
 
     const response = await fetch(
-        `http://127.0.0.1:8001/chat/${chatId}`
+        `https://code-gpt-a3w3.onrender.com/chat/${chatId}`
     );
 
     const chat = await response.json();
@@ -139,7 +139,7 @@ async function openChat(chatId) {
 async function deleteChat(chatId){
 
     const response = await fetch(
-        `http://127.0.0.1:8001/chat/${chatId}`,
+        `https://code-gpt-a3w3.onrender.com/chat/${chatId}`,
         {
             method:"DELETE"
         }
@@ -584,7 +584,7 @@ chatBox.innerHTML += userMessage;
         console.log("3. About to call FastAPI");
 
         const response = await fetch(
-            "http://127.0.0.1:8001/chat",
+            "https://code-gpt-a3w3.onrender.com/chat",
             {
                 method:"POST",
 
@@ -706,7 +706,7 @@ window.onload = async function(){
     await loadChats();
 
     const response = await fetch(
-        "http://127.0.0.1:8001/chats"
+        "https://code-gpt-a3w3.onrender.com/chats"
     );
 
     const chats = await response.json();
