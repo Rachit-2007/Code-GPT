@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>🚀 Code-GPT</title>
+
+    <link rel="stylesheet"
+    href="{% static 'css/style.css' %}">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+</head>
+
+<body>
+<button id="sidebar-toggle" class="sidebar-toggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>  
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+
+      
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+
+            <div class="logo-text">
+                <h2>Code-GPT</h2>
+            </div>
+
+        </div>
+
+    </div>
+
+       <button class="new-chat" onclick="createNewChat()">
+            <i class="fa-regular fa-pen-to-square"></i>
+            New Chat
+        </button>
+        <div class="menu">
+
+            <div class="menu-item"onclick="toggleChats()">
+                <i class="fa-regular fa-comment"></i>
+                <span>Chats</span>
+                <i id="chat-arrow" class="fa-solid fa-chevron-down"></i>
+            </div>
+            
+            <div id="chat-list" class="chat-list"></div>
+
+            <div class="menu-item">
+                <i class="fa-solid fa-code"></i>
+                Code Snippets
+            </div>
+
+            <div class="menu-item">
+                <i class="fa-solid fa-bug"></i>
+                Debugging
+            </div>
+            
+            <div
+            class="menu-item"
+            onclick="openSettings()">
+            <i class="fa-solid fa-gear"></i>
+            Settings
+        </div>
+            
+
+        </div>
+
+
+
+    <div class="bottom">
+    <div class="about">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>About</span>
+    </div>
+
+    <div class="profile-card">
+
+        <div class="profile-icon">
+            <i class="fa-solid fa-user"></i>
+        </div>
+
+        <div class="profile-info">
+            <h4>{{ request.user.username }}</h4>
+            <p>Welcome back!</p>
+        </div>
+
+    </div>
+
+    <a href="{% url 'logout' %}" class="logout-btn">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+    </a>
+
+
+        
+    </div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+    <!-- CHAT AREA -->
+
+    <div class="chat-area" id="chat-box">
+
+        <div class="message ai">
+            👋 Hello! I am 🚀 Code-GPT.
+        </div>
+
+    </div>
+
+    <!-- CENTER LOGO -->
+
+    <div class="center-logo">
+
+        <i class="fa-solid fa-robot"></i>
+
+    </div>
+     
+    
+
+    <!-- INPUT -->
+<div class="input-container">
+    
+    <div id="attachment-preview"></div>
+
+    <div class="input-box">
+
+        <!-- Message Input -->
+        <input
+            type="text"
+            id="message"
+            placeholder="Send a message"
+        >
+
+        <!-- Upload -->
+        <div class="upload-wrapper">
+
+            <button class="icon-btn" onclick="toggleUploadMenu(event)">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <div id="upload-menu" class="upload-menu">
+
+                <label>
+                    <i class="fa-solid fa-file-pdf"></i>
+                    Upload PDF
+                    <input
+                       type="file"
+                        accept="image/*"
+                        onchange="uploadFile(this.files[0])"
+                        hidden
+                    >
+                </label>
+
+                <label>
+                    <i class="fa-solid fa-image"></i>
+                    Upload Image
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onchange="
+                            console.log('Selected');
+                            alert('Selected');
+                            uploadFile(this.files[0]);
+                     "
+                    hidden
+                    >
+                </label>
+
+                <label>
+                    <i class="fa-solid fa-file-lines"></i>
+                    Upload Text
+                    <input
+                        type="file"
+                        accept=".txt"
+                        onchange="uploadFile(this.files[0])"
+                        hidden
+                    >
+                </label>
+
+                <label>
+                    <i class="fa-solid fa-table"></i>
+                    Upload CSV
+                    <input
+                        type="file"
+                        accept=".csv"
+                        onchange="uploadFile(this.files[0])"
+                        hidden
+                    >
+                </label>
+
+            </div>
+
+        </div>
+
+        <!-- Model -->
+        <select id="model-select" class="model-select">
+
+            <option value="deepseek-coder">
+                DeepSeek Coder
+            </option>
+
+            <option value="llama3">
+                Llama 3
+            </option>
+
+            <option value="codellama">
+                CodeLlama
+            </option>
+
+        </select>
+        <!-- SETTINGS MODAL -->
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="settings-modal">
+
+    <div class="settings-content">
+
+        <h2>⚙️ Settings</h2>
+
+        <label>Theme</label>
+        <select id="theme-select">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+        </select>
+
+        <label>Font Size</label>
+        <select id="font-size-select">
+            <option value="14">Small</option>
+            <option value="16" selected>Medium</option>
+            <option value="18">Large</option>
+        </select>
+
+        <label>Default Model</label>
+        <select id="default-model-select">
+            <option value="qwen2.5-coder:7b">qwen coder</option>
+            <option value="llama3">Llama 3</option>
+            <option value="codellama">CodeLlama</option>
+        </select>
+
+        <div class="settings-buttons">
+
+            <button class="settings-btn" onclick="saveSettings()">
+                Save
+            </button>
+
+            <button class="settings-btn secondary" onclick="toggleTheme()">
+                Toggle Theme
+            </button>
+
+            <button class="settings-btn close-btn" onclick="closeSettings()">
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+        <!-- Settings -->
+        <button
+            class="settings-open-btn"
+            onclick="openSettings()">
+
+            <i class="fa-solid fa-gear"></i>
+            Settings
+
+        </button>
+
+        <!-- Send -->
+        <button
+            class="icon-btn"
+            onclick="sendMessage()">
+
+            <i class="fa-solid fa-arrow-up"></i>
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{% static 'js/script.js' %}"></script>
+
+</body>
+</html>
