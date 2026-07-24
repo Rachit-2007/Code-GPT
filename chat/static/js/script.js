@@ -1,6 +1,6 @@
 let currentChatId = null;
 let chatHistory = [];
-let uploadedFile = null;
+let selectedImage = null;
 
 
 // =========================
@@ -409,45 +409,17 @@ async function uploadFile(file){
 
     if(!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+     selectedImage = file;
 
-    const csrftoken = getCookie("csrftoken");
-
-    try{
-
-        const response = await fetch("/upload/",{
-            method:"POST",
-            headers:{
-                "X-CSRFToken":csrftoken
-            },
-            body:formData
-        });
-
-        const data = await response.json();
-   
-        console.log("UPLOAD RESPONSE:", JSON.stringify(data, null, 2));
-        console.log("IMAGE URL:", data.url);
-
-        if(data.status==="success"){
-
-            uploadedFile = data;
-
-            showAttachment(data);
-
-            document.getElementById("upload-menu").classList.remove("show");
-
-        }
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-    }
+    showAttachment({
+        filename: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file)
+    });
 
 }
+
+
 function showAttachment(file){
 
     const preview = document.getElementById("attachment-preview");
@@ -486,7 +458,7 @@ function showAttachment(file){
 }
 function removeAttachment(){
 
-    uploadedFile=null;
+    selectedImage=null;
 
     document.getElementById("attachment-preview").innerHTML="";
 
@@ -526,32 +498,22 @@ async function sendMessage(){
     const message =
     messageInput.value.trim();
 
-    if(!message) return;
+    if (!message && !selectedImage) {
+    return;
+    }
 
     const chatBox =
     document.getElementById("chat-box");
 
     let userMessage = "";
 
-if (uploadedFile) {
+if (selectedImage) {
 
-    if (uploadedFile.type.startsWith("image")) {
-
-        userMessage += `
-            <div class="attachment-message">
-                <img src="${uploadedFile.url}" class="chat-image">
-            </div>
-        `;
-
-    } else {
-
-        userMessage += `
-            <div class="attachment-message">
-                📄 ${uploadedFile.filename}
-            </div>
-        `;
-
-    }
+    userMessage += `
+        <div class="attachment-message">
+            <img src="${URL.createObjectURL(selectedImage)}" class="chat-image">
+        </div>
+    `;
 
 }
 
@@ -581,7 +543,7 @@ chatBox.innerHTML += userMessage;
 
     try{
    
-        console.log("Uploaded File:", uploadedFile);
+        console.log("Selected Image:", selectedImage);
         console.log("3. About to call FastAPI");
 
     const formData = new FormData();
@@ -594,12 +556,19 @@ formData.append(
 );
 
 // Send selected image directly to FastAPI
-const fileInput = document.querySelector(
-    '#upload-menu input[type="file"][accept="image/*"]'
-);
 
-if (fileInput && fileInput.files.length > 0) {
-    formData.append("image", fileInput.files[0]);
+if (selectedImage){
+    formData.append("image",selectedImage);
+}
+
+console.log("Selected Image:", selectedImage);
+
+if (selectedImage) {
+    console.log("Image Name:", selectedImage.name);
+    console.log("Image Type:", selectedImage.type);
+    console.log("Image Size:", selectedImage.size);
+} else {
+    console.log("No image selected");
 }
 
 // Send request
@@ -671,7 +640,7 @@ const response = await fetch(
     
         await loadChats();
         await openChat(currentChatId);
-        uploadedFile = null;
+        selectedImage= null;
   
         document.getElementById("attachment-preview").innerHTML = "";
 

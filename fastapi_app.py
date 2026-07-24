@@ -355,6 +355,13 @@ async def chat(
 
         image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
+        print("=" * 80)
+        print("IMAGE RECEIVED:", image)
+        print("Filename:", image.filename)
+        print("Content Type:", image.content_type)
+        print("Image Size:", len(image_bytes))
+        print("=" * 80)
+
         user_message = {
            "role": "user",
            "content": [
@@ -382,6 +389,8 @@ async def chat(
 
     conversation.append(user_message)
 
+    print("LAST MESSAGE:")
+    print(conversation[-1])
     
 
     save_message(
