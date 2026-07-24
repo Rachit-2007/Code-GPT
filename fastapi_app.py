@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi import UploadFile, File, Form
 from pydantic import BaseModel
 from groq import Groq
 from typing import Optional
@@ -52,6 +53,8 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     chat_id: str
     prompt: str
+    model: str = "llama-3.3-70b-versatile"
+
     attachment: Optional[dict] = None
 
 
@@ -280,12 +283,18 @@ def build_image_message(prompt, image_path):
 # CHAT API
 # =====================================================
 @app.post("/chat")
-async def chat(request: ChatRequest):
+async def chat(
+    chat_id: str = Form(...),
+    prompt: str = Form(...),
+    model: str = Form("llama-3.3-70b-versatile"),
+    image: UploadFile | None = File(None)
+):
+
     # ---------------------------------
     # Fetch Chat
     # ---------------------------------
 
-    chat_doc = get_chat(request.chat_id)
+    chat_doc = get_chat(chat_id)
 
     if not chat_doc:
 
@@ -302,11 +311,11 @@ async def chat(request: ChatRequest):
 
         chat_collection.update_one(
             {
-                "_id": ObjectId(request.chat_id)
+                "_id": ObjectId(chat_id)
             },
             {
                 "$set": {
-                    "title": request.prompt[:30]
+                    "title": prompt[:30]
                 }
             }
         )
@@ -317,16 +326,14 @@ async def chat(request: ChatRequest):
 
     groq_model = "llama-3.3-70b-versatile"
 
-    if (
-        request.attachment
-        and request.attachment.get(
-            "type", ""
-        ).startswith("image/")
-    ):
+    if image:
+       groq_model = "qwen/qwen3.6-27b"
+    else:
+       groq_model = model
 
         # Vision Model
 
-        groq_model = "qwen/qwen3.6-27b"  
+      
 
 
     # ---------------------------------
@@ -339,51 +346,62 @@ async def chat(request: ChatRequest):
      
 
     # ---------------------------------
-    # Current user message
+    # Current  user message
     # ---------------------------------
 
-    if request.attachment:
+    if image:
 
-        user_message = build_image_message(
+        image_bytes = await image.read()
 
-            request.prompt,
+        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
-            request.attachment.get("path")
-
-        )
+        user_message = {
+           "role": "user",
+           "content": [
+            {
+                "type": "text",
+                "text": prompt
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:{image.content_type};base64,{image_base64}"
+                }
+            }
+        ]
+    }
 
     else:
 
-        user_message = {
-
-            "role": "user",
-
-            "content": request.prompt
-
+         user_message = {
+           "role": "user",
+           "content": prompt
         }
 
+    
 
     conversation.append(user_message)
 
     
 
     save_message(
-    request.chat_id,
+    chat_id,
     "user",
-    request.prompt,
-    request.attachment
+    prompt,
+    None
 )
+
 
     print("=" * 60)
     print("MODEL :", groq_model)
-    print("PROMPT:", request.prompt)
+    print("PROMPT:", prompt)
 
-    if request.attachment:
-        print("IMAGE :", request.attachment.get("path"))
-
+    if image:
+       print("IMAGE :", image.filename)
+   
     print("=" * 60)
 
-        # ---------------------------------
+    # ---------------------------------
     # Send Request to Groq
     # ---------------------------------
 
@@ -444,7 +462,7 @@ async def chat(request: ChatRequest):
 
             save_message(
 
-                request.chat_id,
+                chat_id,
 
                 "assistant",
 

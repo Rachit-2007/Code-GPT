@@ -426,7 +426,8 @@ async function uploadFile(file){
 
         const data = await response.json();
    
-        console.log("UPLOAD RESPONSE:", data);
+        console.log("UPLOAD RESPONSE:", JSON.stringify(data, null, 2));
+        console.log("IMAGE URL:", data.url);
 
         if(data.status==="success"){
 
@@ -583,29 +584,32 @@ chatBox.innerHTML += userMessage;
         console.log("Uploaded File:", uploadedFile);
         console.log("3. About to call FastAPI");
 
-        const response = await fetch(
-            "https://code-gpt-a3w3.onrender.com/chat",
-            {
-                method:"POST",
+    const formData = new FormData();
 
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
+formData.append("chat_id", currentChatId);
+formData.append("prompt", message);
+formData.append(
+    "model",
+    document.getElementById("model-select").value
+);
 
-               body:JSON.stringify({
+// Send selected image directly to FastAPI
+const fileInput = document.querySelector(
+    '#upload-menu input[type="file"][accept="image/*"]'
+);
 
-    chat_id: currentChatId,
+if (fileInput && fileInput.files.length > 0) {
+    formData.append("image", fileInput.files[0]);
+}
 
-    prompt: message,
-
-    model: document.getElementById("model-select").value,
-
-    attachment: uploadedFile
-
-}) 
-            }
-        );
+// Send request
+const response = await fetch(
+    "https://code-gpt-a3w3.onrender.com/chat",
+    {
+        method: "POST",
+        body: formData
+    }
+);
     console.log("4. Response received:", response.status);    
 
         
