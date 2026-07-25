@@ -61,8 +61,14 @@ async function loadChats() {
             body: formData
         }
     );
+    
+    if (!response.ok) {
+    console.log(await response.text());
+    return;
+    }
 
     const chats = await response.json();
+    
 
     const chatList =
     document.getElementById("chat-list");
@@ -106,7 +112,12 @@ async function openChat(chatId) {
         method: "POST",
         body: formData
     }
-);  
+     );  
+    if (!response.ok) {
+    console.log(await response.text());
+    return;
+    }
+
     const chat = await response.json();
 
     const chatBox =
@@ -709,10 +720,17 @@ function toggleChats() {
 
 window.onload = async function(){
 
-    await loadChats();
+     await loadChats();
+
+    const formData = new FormData();
+    formData.append("username", CURRENT_USER);
 
     const response = await fetch(
-        "https://code-gpt-a3w3.onrender.com/chats"
+        "https://code-gpt-a3w3.onrender.com/chats",
+        {
+            method: "POST",
+            body: formData
+        }
     );
 
     const chats = await response.json();

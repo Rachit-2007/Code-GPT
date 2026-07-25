@@ -404,6 +404,7 @@ async def chat(
 
     save_message(
     chat_id,
+    username,
     "user",
     prompt,
     None
@@ -481,6 +482,8 @@ async def chat(
             save_message(
 
                 chat_id,
+
+                username,
 
                 "assistant",
 
