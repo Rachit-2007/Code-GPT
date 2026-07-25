@@ -4,6 +4,7 @@ from fastapi.responses import StreamingResponse
 from fastapi import UploadFile, File, Form
 from pydantic import BaseModel
 from groq import Groq
+from fastapi import Form
 from typing import Optional
 from bson import ObjectId
 from mongodb import chat_collection
@@ -494,9 +495,12 @@ async def chat(
 # =====================================================
 
 @app.post("/new-chat")
-def new_chat():
+def new_chat(
+    username: str = Form(...)
+):
 
     chat = {
+        "username": username,
         "title": "New Chat",
         "messages": []
     }
@@ -513,11 +517,15 @@ def new_chat():
 # =====================================================
 
 @app.get("/chats")
-async def get_chats():
+async def get_chats(
+    username: str = Form(...)
+):
 
     chats = list(
 
-        chat_collection.find({}, {"title":1}).sort("_id", -1)
+        chat_collection.find({"username": username},
+                              {"title":1}
+                              ).sort("_id", -1)
     )
 
     output = []
@@ -540,9 +548,14 @@ async def get_chats():
 # =====================================================
 
 @app.get("/chat/{chat_id}")
-async def open_chat(chat_id: str):
+async def open_chat(
+    chat_id: str,
+    username: str=Form(...)
+):
 
-    chat = get_chat(chat_id)
+    chat = chat_collection.find_one({
+        "_id": ObjectId(chat_id),
+        "username": username})
 
     if not chat:
 
@@ -562,19 +575,28 @@ async def open_chat(chat_id: str):
 # =====================================================
 
 @app.delete("/chat/{chat_id}")
-async def delete_chat(chat_id: str):
+async def delete_chat(
+    chat_id: str,
+    username: str = Form(...)  
+     ):
 
     try:
 
-        chat_collection.delete_one(
+        result = chat_collection.delete_one(
 
             {
 
-                "_id": ObjectId(chat_id)
+                "_id": ObjectId(chat_id),
+                "username":username
 
             }
 
         )
+
+        if result.deleted_count == 0:
+            return {
+                "error": "Chat not found or access denied."
+            }
 
         return {
 

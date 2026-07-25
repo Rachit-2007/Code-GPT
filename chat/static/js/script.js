@@ -16,12 +16,16 @@ async function createNewChat() {
         logo.style.display = "block";
     }
 
+    const formData = new FormData();
+    formData.append("username", CURRENT_USER);
+
     const response = await fetch(
-        "https://code-gpt-a3w3.onrender.com/new-chat",
-        {
-            method: "POST"
-        }
-    );
+      "https://code-gpt-a3w3.onrender.com/new-chat",
+    {
+        method: "POST",
+        body: formData
+    }
+);
 
     const data = await response.json();
 
@@ -86,10 +90,16 @@ async function openChat(chatId) {
 
     currentChatId = chatId;
 
-    const response = await fetch(
-        `https://code-gpt-a3w3.onrender.com/chat/${chatId}`
-    );
+    const formData = new FormData();
+    formData.append("username", CURRENT_USER);
 
+    const response = await fetch(
+        "https://code-gpt-a3w3.onrender.com/chats",
+    {
+        method: "POST",
+        body: formData
+    }
+);  
     const chat = await response.json();
 
     const chatBox =
@@ -138,12 +148,16 @@ async function openChat(chatId) {
 
 async function deleteChat(chatId){
 
+    const formData = new FormData();
+    formData.append("username", CURRENT_USER);
+
     const response = await fetch(
-        `https://code-gpt-a3w3.onrender.com/chat/${chatId}`,
-        {
-            method:"DELETE"
-        }
-    );
+      `https://code-gpt-a3w3.onrender.com/chat/${chatId}`,
+    {
+        method: "DELETE",
+        body: formData
+    }
+); 
 
     if(response.ok){
         loadChats();
@@ -548,7 +562,8 @@ chatBox.innerHTML += userMessage;
 
     const formData = new FormData();
 
-formData.append("chat_id", currentChatId);
+formData.append("chat_id", currentChatId)
+formData.append("username", CURRENT_USER);;
 formData.append("prompt", message);
 formData.append(
     "model",
