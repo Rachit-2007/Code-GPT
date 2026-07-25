@@ -112,6 +112,7 @@ def get_chat(chat_id: str):
 
 def save_message(
     chat_id,
+    username,
     role,
     content,
     attachment=None
@@ -134,7 +135,8 @@ def save_message(
         result = chat_collection.update_one(
 
             {
-                "_id": ObjectId(chat_id)
+                "_id": ObjectId(chat_id),
+                "username": username
             },
 
             {
@@ -287,6 +289,7 @@ def build_image_message(prompt, image_path):
 async def chat(
     chat_id: str = Form(...),
     prompt: str = Form(...),
+    username: str = Form(...),
     model: str = Form("llama-3.3-70b-versatile"),
     image: UploadFile | None = File(None)
 ):
@@ -295,7 +298,10 @@ async def chat(
     # Fetch Chat
     # ---------------------------------
 
-    chat_doc = get_chat(chat_id)
+    chat_doc = chat_collection.find_one({
+    "_id": ObjectId(chat_id),
+    "username": username
+    })
 
     if not chat_doc:
 
@@ -310,16 +316,18 @@ async def chat(
 
     if chat_doc["title"] == "New Chat":
 
+
         chat_collection.update_one(
-            {
-                "_id": ObjectId(chat_id)
-            },
-            {
-                "$set": {
-                    "title": prompt[:30]
-                }
-            }
-        )
+       {
+         "_id": ObjectId(chat_id),
+         "username": username
+       },
+    {
+        "$set": {
+            "title": prompt[:30]
+        }
+    }
+)    
 
     # ---------------------------------
     # Select Groq Model
@@ -516,7 +524,7 @@ def new_chat(
 # GET ALL CHATS
 # =====================================================
 
-@app.get("/chats")
+@app.post("/chats")
 async def get_chats(
     username: str = Form(...)
 ):
@@ -531,11 +539,8 @@ async def get_chats(
     output = []
 
     for chat in chats:
-
         output.append({
-
             "_id": str(chat["_id"]),
-
             "title": chat["title"]
 
         })
@@ -547,22 +552,22 @@ async def get_chats(
 # GET CHAT
 # =====================================================
 
-@app.get("/chat/{chat_id}")
+@app.post("/chat/{chat_id}")
 async def open_chat(
     chat_id: str,
-    username: str=Form(...)
+    username: str = Form(...)
 ):
 
-    chat = chat_collection.find_one({
-        "_id": ObjectId(chat_id),
-        "username": username})
+    chat = chat_collection.find_one(
+        {
+            "_id": ObjectId(chat_id),
+            "username": username
+        }
+    )
 
     if not chat:
-
         return {
-
             "messages": []
-
         }
 
     chat["_id"] = str(chat["_id"])

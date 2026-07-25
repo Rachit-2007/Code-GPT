@@ -51,8 +51,15 @@ async function createNewChat() {
 
 async function loadChats() {
 
+    const formData = new FormData();
+    formData.append("username", CURRENT_USER);
+
     const response = await fetch(
-        "https://code-gpt-a3w3.onrender.com/chats"
+        "https://code-gpt-a3w3.onrender.com/chats",
+        {
+            method: "POST",
+            body: formData
+        }
     );
 
     const chats = await response.json();
@@ -562,8 +569,8 @@ chatBox.innerHTML += userMessage;
 
     const formData = new FormData();
 
-formData.append("chat_id", currentChatId)
-formData.append("username", CURRENT_USER);;
+formData.append("chat_id", currentChatId);
+formData.append("username", CURRENT_USER);
 formData.append("prompt", message);
 formData.append(
     "model",
@@ -594,6 +601,12 @@ const response = await fetch(
         body: formData
     }
 );
+
+if (!response.ok) {
+    const error = await response.text();
+    console.error(error);
+    throw new Error(error);
+}
     console.log("4. Response received:", response.status);    
 
         
