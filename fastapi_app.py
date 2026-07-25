@@ -487,6 +487,7 @@ async def chat(
                 full_response
 
             )
+    print("Assistant message saved ")        
 
 
     return StreamingResponse(
@@ -557,6 +558,10 @@ async def open_chat(
     chat_id: str,
     username: str = Form(...)
 ):
+    print("=" * 50)
+    print("OPEN CHAT CALLED")
+    print("Chat ID:", chat_id)
+    print("Username:", username)
 
     chat = chat_collection.find_one(
         {
@@ -564,6 +569,11 @@ async def open_chat(
             "username": username
         }
     )
+
+    print("Mongo Result:")
+    print(chat)
+    print("=" * 50)
+
 
     if not chat:
         return {

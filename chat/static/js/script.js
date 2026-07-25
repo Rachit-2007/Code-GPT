@@ -101,7 +101,7 @@ async function openChat(chatId) {
     formData.append("username", CURRENT_USER);
 
     const response = await fetch(
-        "https://code-gpt-a3w3.onrender.com/chats",
+        `https://code-gpt-a3w3.onrender.com/chat/${chatId}`,
     {
         method: "POST",
         body: formData
@@ -113,6 +113,11 @@ async function openChat(chatId) {
     document.getElementById("chat-box");
 
     chatBox.innerHTML = "";
+
+    if (!chat.messages) {
+    console.error("No messages returned:", chat);
+    return;
+}
 
     chat.messages.forEach(msg => {
 
@@ -127,8 +132,8 @@ async function openChat(chatId) {
                     <img src="${msg.attachment.url}" class="chat-image">
                 </div>
             `;
-
-        } else {
+        }
+     else {
 
             html += `
                 <div class="attachment-message">
