@@ -42,6 +42,12 @@ async function createNewChat() {
 
     // refresh sidebar
     await loadChats();
+
+    if(window.innerWidth<=768){
+
+    closeSidebar();
+
+}
 }
 
 
@@ -166,6 +172,9 @@ async function openChat(chatId) {
     chatBox.scrollTop =
     chatBox.scrollHeight;
 
+    if (window.innerWidth <= 768) {
+    closeSidebar();
+}
 
 }
 
@@ -678,7 +687,12 @@ if (!response.ok) {
     aiText.innerHTML = html;
     
     chatBox.scrollTop = chatBox.scrollHeight;    
+    
+    if(window.innerWidth<=768){
 
+    closeSidebar();
+
+}
     
 }
     
@@ -703,16 +717,7 @@ if (!response.ok) {
         console.log(error);
     }
 }
-function toggleChats() {
 
-    document
-        .getElementById("chat-list")
-        .classList.toggle("show");
-
-    document
-        .getElementById("chat-arrow")
-        .classList.toggle("rotate");
-}
 
 // =========================
 // PAGE LOAD
@@ -744,26 +749,8 @@ window.onload = async function(){
         await createNewChat();
     }
 };
-document.addEventListener("DOMContentLoaded", () => {
-
-    const sidebar =
-    document.getElementById("sidebar");
-
-    const toggleBtn =
-    document.getElementById("sidebar-toggle");
-
-    if(toggleBtn){
-
-        toggleBtn.addEventListener("click", () => {
-
-            sidebar.classList.toggle("collapsed");
-
-        });
-
-    }
 
 
-});
 
 function toggleChats(){
 
@@ -796,4 +783,27 @@ function getCookie(name) {
     }
 
     return cookieValue;
+}
+function toggleSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("show");
+
+    document
+        .getElementById("overlay")
+        .classList.toggle("show");
+
+}
+
+function closeSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("show");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+
 }

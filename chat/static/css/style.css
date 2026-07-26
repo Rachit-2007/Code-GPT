@@ -224,6 +224,8 @@ body.light-mode .menu-item:hover{
     flex-direction:column;
     align-items:center;
     height: 100vh;
+    margin-left:0;
+    width:100%;
 }
 
 /* CENTER LOGO */
@@ -1239,4 +1241,47 @@ body.light-mode .attachment-message{
     background: #f7f7f7;
     border: 1px solid #dcdcdc;
     color: #222;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+
+    display:none;
+
+    z-index:900;
+}
+
+@media (max-width:768px){
+
+    .sidebar{
+
+        position:fixed;
+
+        left:-300px;
+
+        top:0;
+
+        width:280px;
+
+        height:100vh;
+
+        transition:.3s;
+
+        z-index:1000;
+    }
+
+    .sidebar.show{
+
+        left:0;
+
+    }
+
+    .overlay.show{
+
+        display:block;
+
+    }
+
 }
