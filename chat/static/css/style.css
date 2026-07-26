@@ -1076,11 +1076,11 @@ body.light-mode .upload-menu label:hover{
     align-items:center;
     justify-content:center;
     gap:10px;
-
-    padding:14px;
+    font-size:15px;
+    padding:10px 14px;
 
     background:#1f1f1f;
-
+   
     border:1px solid #323232;
 
     border-radius:14px;
@@ -1250,7 +1250,7 @@ body.light-mode .attachment-message{
 
     display:none;
 
-    z-index:900;
+    z-index:999;
 }
 
 @media (max-width:768px){
@@ -1259,15 +1259,15 @@ body.light-mode .attachment-message{
 
         position:fixed;
 
-        left:-300px;
+        left:-100%;
 
         top:0;
-
-        width:280px;
-
+        width:80%;
+        
+        max-width:320px;
         height:100vh;
 
-        transition:.3s;
+        transition:left .3s ease;
 
         z-index:1000;
     }
@@ -1284,4 +1284,43 @@ body.light-mode .attachment-message{
 
     }
 
+    /* Main chat should take full width */
+    .main{
+        width:100%;
+        margin-left:0;
+    }
+
+    /* Input bar */
+    .input-container{
+        left:0;
+        width:100%;
+        padding:10px;
+    }
+
+    /* Chat area */
+    .chat-area{
+        padding:18px;
+    }
+
+    /* AI message */
+    .message.ai{
+        max-width:95%;
+    }
+
+    /* User message */
+    .message.user{
+        max-width:85%;
+    }
+
+    /* Logo */
+    .logo-icon{
+        width:60px;
+        height:60px;
+    }
+
+    .logo-text h2{
+        font-size:24px;
+    }
+
 }
+
