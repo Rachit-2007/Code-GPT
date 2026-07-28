@@ -1379,13 +1379,15 @@ body.light-mode .attachment-message{
 }
 
     .input-container{
-
-        left:12px;
-        right:12px;
-        bottom:12px;
+        
+        position:fixed;
+        left:0;
+        right:0;
+        bottom:0;
         padding:12px;
-        border-radius:22px;
-        gap:10px;
+        width:100%;
+        border-radius: 18px 18px 0 0;
+        
 
     }
 
@@ -1400,8 +1402,10 @@ body.light-mode .attachment-message{
 
     .input-box input{
 
-        font-size:16px;
+        font-size:15px;
         min-width:0;
+        flex: 1;
+        padding: 14px 16px;
 
     }
 
@@ -1410,14 +1414,17 @@ body.light-mode .attachment-message{
         width:44px;
         height:44px;
         font-size:18px;
+        flex-shrink: 0;
 
     }
 
     .model-select{
 
-        width:110px;
+        width:90px;
         padding:10px;
-        font-size:14px;
+        font-size:13px;
+        flex-shrink: 0;
+        display: none;
 
 }
 
@@ -1425,6 +1432,7 @@ body.light-mode .attachment-message{
 
         padding:10px 14px;
         font-size:14px;
+        display:none
 
 }
     .upload-menu{
