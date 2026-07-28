@@ -402,13 +402,23 @@ async def chat(
     print(conversation[-1])
     
 
+    attachment = None
+
+    if image:
+       attachment = {
+        "filename": image.filename,
+        "type": image.content_type,
+        "url": f"data:{image.content_type};base64,{image_base64}"
+    }
+
     save_message(
-    chat_id,
-    username,
-    "user",
-    prompt,
-    None
+      chat_id,
+      username,
+      "user",
+      prompt,
+      attachment
 )
+
 
 
     print("=" * 60)

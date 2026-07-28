@@ -167,7 +167,7 @@
                     Upload PDF
                     <input
                        type="file"
-                        accept="image/*"
+                        accept=".pdf,application/pdf"
                         onchange="uploadFile(this.files[0])"
                         hidden
                     >
@@ -183,7 +183,7 @@
                             console.log('Selected');
                             alert('Selected');
                             uploadFile(this.files[0]);
-                     "
+                        "
                     hidden
                     >
                 </label>
