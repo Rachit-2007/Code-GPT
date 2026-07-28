@@ -1374,8 +1374,9 @@ body.light-mode .attachment-message{
 
     .bottom{
 
-        padding:12px;
-
+        margin-top:auto;
+        padding-top:20px;
+       padding-bottom:20px;
 }
 
     .input-container{
@@ -1384,9 +1385,11 @@ body.light-mode .attachment-message{
         left:0;
         right:0;
         bottom:0;
-        padding:12px;
+        padding:10px;
         width:100%;
         border-radius: 18px 18px 0 0;
+        z-index: 999;
+        background:#111;
         
 
     }
@@ -1405,6 +1408,7 @@ body.light-mode .attachment-message{
         font-size:15px;
         min-width:0;
         flex: 1;
+        width: 100%;
         padding: 14px 16px;
 
     }
@@ -1413,7 +1417,7 @@ body.light-mode .attachment-message{
 
         width:44px;
         height:44px;
-        font-size:18px;
+        font-size:16px;
         flex-shrink: 0;
 
     }
@@ -1421,6 +1425,7 @@ body.light-mode .attachment-message{
     .model-select{
 
         width:90px;
+        min-width:90px;
         padding:10px;
         font-size:13px;
         flex-shrink: 0;
@@ -1639,7 +1644,7 @@ body.light-mode .attachment-message{
 
     .profile-card{
 
-        padding:12px;
+        margin-top:12px;
         border-radius:14px;
 
     }
