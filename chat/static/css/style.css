@@ -258,14 +258,16 @@ body.light-mode .center-logo{
 .center-logo i{
     font-size: 70px;
     color: #ffffff;
+
     line-height: 1;
     display:flex;
     align-items:center;
     justify-content:center;
-    transform:translateY(3px);
+    transform:translateY(4px);
 }
 body.light-mode .center-logo i{
     color:#555;
+    
 }
 
 /* INPUT AREA */
