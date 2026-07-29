@@ -841,15 +841,24 @@ function getCookie(name) {
 }
 function toggleSidebar() {
 
-    document
-        .getElementById("sidebar")
-        .classList.toggle("show");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
 
-    document
-        .getElementById("overlay")
-        .classList.toggle("show");
+    if (window.innerWidth <= 768) {
 
-}
+        // Mobile
+        sidebar.classList.toggle("show");
+        overlay.classList.toggle("show");
+
+    } else {
+ 
+        // Desktop
+        sidebar.classList.toggle("collapsed");
+
+    }
+} 
+
+
 
 function closeSidebar() {
 
