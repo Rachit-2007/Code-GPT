@@ -208,21 +208,29 @@ async function deleteChat(chatId){
 // =========================
 // COPY CODE
 // =========================
+async function copyCode(button){
 
-function copyCode(button){
+    const code = button
+        .closest(".code-container")
+        .querySelector("code")
+        .innerText;
 
-    const code =
-    button.parentElement
-    .nextElementSibling
-    .innerText;
+    try{
 
-    navigator.clipboard.writeText(code);
+        await navigator.clipboard.writeText(code);
 
-    button.innerText = "Copied";
+        button.innerText = "Copied!";
 
-    setTimeout(() => {
-        button.innerText = "Copy";
-    }, 1500);
+        setTimeout(() => {
+            button.innerText = "Copy";
+        },1500);
+
+    }catch(err){
+
+        console.error(err);
+
+    }
+
 }
 
 
@@ -233,49 +241,53 @@ function formatResponse(text) {
 
     if (!text) return "";
 
+    // -----------------------------
     // Escape HTML
+    // -----------------------------
     text = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-    // =====================================
-    // Code Blocks
-    // =====================================
+    // -----------------------------
+    // Store code blocks
+    // -----------------------------
+    const codeBlocks = [];
 
     text = text.replace(
         /```([a-zA-Z0-9+#.-]*)?\n([\s\S]*?)```/g,
-        function (match, language, code) {
+        (match, language, code) => {
 
             language = language || "Code";
 
-            return `
-                <div class="code-container">
+            const html = `
+<div class="code-container">
+    <div class="code-header">
+        <span>${language}</span>
 
-                    <div class="code-header">
+        <button
+            class="copy-btn"
+            onclick="copyCode(this)">
+            Copy
+        </button>
+    </div>
 
-                        <span>${language}</span>
+<pre><code>${code}</code></pre>
 
-                        <button
-                            class="copy-btn"
-                            onclick="copyCode(this)"
-                        >
-                            Copy
-                        </button>
+</div>`;
 
-                    </div>
+            const id = codeBlocks.length;
 
-                    <pre><code>${code}</code></pre>
+            codeBlocks.push(html);
 
-                </div>
-            `;
+            return `%%CODEBLOCK${id}%%`;
+
         }
     );
 
-    // =====================================
+    // -----------------------------
     // Headings
-    // =====================================
-
+    // -----------------------------
     text = text.replace(/^###### (.*)$/gm, "<h6>$1</h6>");
     text = text.replace(/^##### (.*)$/gm, "<h5>$1</h5>");
     text = text.replace(/^#### (.*)$/gm, "<h4>$1</h4>");
@@ -283,85 +295,128 @@ function formatResponse(text) {
     text = text.replace(/^## (.*)$/gm, "<h2>$1</h2>");
     text = text.replace(/^# (.*)$/gm, "<h1>$1</h1>");
 
-    // =====================================
+    // -----------------------------
     // Bold
-    // =====================================
-
+    // -----------------------------
     text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
-    // =====================================
+    // -----------------------------
     // Italic
-    // =====================================
-
+    // -----------------------------
     text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
-    // =====================================
-    // Inline Code
-    // =====================================
-
+    // -----------------------------
+    // Inline code
+    // -----------------------------
     text = text.replace(
         /`([^`]+)`/g,
         "<code>$1</code>"
     );
 
-    // =====================================
+    // -----------------------------
     // Horizontal Rule
-    // =====================================
+    // -----------------------------
+    text = text.replace(/^---$/gm, "<hr>");
 
-    text = text.replace(
-        /^---$/gm,
-        "<hr>"
-    );
-
-    // =====================================
-    // Block Quotes
-    // =====================================
-
+    // -----------------------------
+    // Blockquotes
+    // -----------------------------
     text = text.replace(
         /^> (.*)$/gm,
         "<blockquote>$1</blockquote>"
     );
 
-    // =====================================
-    // Bullet Lists
-    // =====================================
-
-    text = text.replace(
-        /^[-*] (.*)$/gm,
-        "<li>$1</li>"
-    );
-
-    text = text.replace(
-        /(<li>[\s\S]*?<\/li>)/g,
-        "<ul>$1</ul>"
-    );
-
-    // =====================================
-    // Number Lists
-    // =====================================
-
-    text = text.replace(
-        /^\d+\.\s(.*)$/gm,
-        "<li>$1</li>"
-    );
-
-    // =====================================
+    // -----------------------------
     // Links
-    // =====================================
-
+    // -----------------------------
     text = text.replace(
         /(https?:\/\/[^\s]+)/g,
-        `<a href="$1" target="_blank">$1</a>`
+        '<a href="$1" target="_blank">$1</a>'
     );
 
-    // =====================================
-    // Line Breaks
-    // =====================================
+    // -----------------------------
+    // Bullet Lists
+    // -----------------------------
+    text = text.replace(
+        /(?:^- .*(?:\n|$))+?/gm,
+        function(match){
 
-    text = text.replace(/\n/g, "<br>");
+            const items = match
+                .trim()
+                .split("\n")
+                .map(item => "<li>" + item.substring(2) + "</li>")
+                .join("");
+
+            return "<ul>" + items + "</ul>";
+
+        }
+    );
+
+    // -----------------------------
+    // Number Lists
+    // -----------------------------
+    text = text.replace(
+        /(?:^\d+\..*(?:\n|$))+?/gm,
+        function(match){
+
+            const items = match
+                .trim()
+                .split("\n")
+                .map(item =>
+                    "<li>" +
+                    item.replace(/^\d+\.\s*/, "") +
+                    "</li>"
+                )
+                .join("");
+
+            return "<ol>" + items + "</ol>";
+
+        }
+    );
+
+    // -----------------------------
+    // Paragraphs
+    // -----------------------------
+    text = text
+        .split(/\n\s*\n/)
+        .map(block => {
+
+            if (
+                block.startsWith("<h") ||
+                block.startsWith("<ul") ||
+                block.startsWith("<ol") ||
+                block.startsWith("<blockquote") ||
+                block.startsWith("<hr") ||
+                block.startsWith("%%CODEBLOCK")
+            ){
+
+                return block;
+
+            }
+
+            return "<p>" +
+                block.replace(/\n/g,"<br>") +
+                "</p>";
+
+        })
+        .join("");
+
+    // -----------------------------
+    // Restore code blocks
+    // -----------------------------
+    codeBlocks.forEach((block,index)=>{
+
+        text = text.replace(
+            `%%CODEBLOCK${index}%%`,
+            block
+        );
+
+    });
 
     return text;
+
 }
+
 
 function openSettings() {
     document.getElementById(
